@@ -28,6 +28,7 @@ function Update-SplunkLookup {
         [Parameter(Mandatory=$true)]
         [String]$NewCSVPath,
         [String]$App
+        
     )
 
     process {
