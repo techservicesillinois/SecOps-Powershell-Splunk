@@ -103,7 +103,7 @@ function Export-SplunkData {
         }
         $Results = Invoke-RestMethod @IVRSplat
 
-        #Return results
+        #Return results 
         If($ConsoleOutput){
             $Results
         }
