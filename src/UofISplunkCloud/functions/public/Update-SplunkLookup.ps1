@@ -42,7 +42,7 @@ function Update-SplunkLookup {
         #Support -WhatIf feature of this function because it makes system changes
         If($PSCmdlet.ShouldProcess("$($BaseURI)/data/lookup-table-files/$($LookupName)")){
             #Test that the lookup exists
-            $IVRSplat = @{
+          <#  $IVRSplat = @{
                 Credential = $Credential
                 Method = 'GET'
                 #Use a different URI depending on if an App is specified or not
@@ -60,7 +60,7 @@ function Update-SplunkLookup {
             }
 
             #Update the lookup, which requires transformation of the CSV file
-            #$CSVJson = Import-Csv $NewCSVPath -Encoding 'utf8BOM' | ConvertTo-Json
+            $CSVJson = Import-Csv $NewCSVPath -Encoding 'utf8BOM' | ConvertTo-Json
             #Escapes any escapes \ and escaped quotes \" in the json elements, then escapes any quotes in the json body
             #Solution from dmarling here: https://community.splunk.com/t5/Getting-Data-In/how-to-upload-csv-data-file-into-splunk-by-using-REST-API-Can/td-p/442884
             $EscapingEscapedEscapes = $CSVJson -replace '\\\\', '\\\\\\'
@@ -81,7 +81,7 @@ function Update-SplunkLookup {
             }
             $Results = Invoke-RestMethod @IVRSplat
             Write-Verbose -Message "$($Results)"
-        }
+        }#>
     }
     end {
     }
