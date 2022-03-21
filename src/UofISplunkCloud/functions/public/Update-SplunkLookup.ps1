@@ -1,8 +1,8 @@
 <#
 .Synopsis
-    Updates a Splunk lookup table with the provided CSV. This function requires loading the CSV into memory and should not be used with large files. 
+    Updates a Splunk lookup table with the provided CSV. This function requires loading the CSV into memory and should not be used with large files.
 .DESCRIPTION
-    Updates a Splunk lookup table with the provided CSV. This function requires loading the CSV into memory and should not be used with large files. 
+    Updates a Splunk lookup table with the provided CSV. This function requires loading the CSV into memory and should not be used with large files.
 .PARAMETER Credential
     Service account username and password with access to the search index being used in Splunk
 .PARAMETER CloudDeploymentName
@@ -14,7 +14,7 @@
 .PARAMETER App
     Specify the Splunk app to use if required ie 'illinois-urbana-security-techsvc-APP'
 .EXAMPLE
-    Update-SplunkLookup -Credential $Credential -CloudDeploymentName 'illinois' -LookupName 'test.csv' -NewCSVPath '.\test_2022-14-03.csv' -App 'illinois-urbana-security-techsvc-APP' 
+    Update-SplunkLookup -Credential $Credential -CloudDeploymentName 'illinois' -LookupName 'test.csv' -NewCSVPath '.\test_2022-14-03.csv' -App 'illinois-urbana-security-techsvc-APP'
 #>
 function Update-SplunkLookup {
     [CmdletBinding(SupportsShouldProcess)]
@@ -28,7 +28,6 @@ function Update-SplunkLookup {
         [Parameter(Mandatory=$true)]
         [String]$NewCSVPath,
         [String]$App
-        
     )
 
     process {
@@ -42,7 +41,7 @@ function Update-SplunkLookup {
         #Support -WhatIf feature of this function because it makes system changes
         If($PSCmdlet.ShouldProcess("$($BaseURI)/data/lookup-table-files/$($LookupName)")){
             #Test that the lookup exists
-          <#  $IVRSplat = @{
+            $IVRSplat = @{
                 Credential = $Credential
                 Method = 'GET'
                 #Use a different URI depending on if an App is specified or not
@@ -81,7 +80,7 @@ function Update-SplunkLookup {
             }
             $Results = Invoke-RestMethod @IVRSplat
             Write-Verbose -Message "$($Results)"
-        }#>
+        }
     }
     end {
     }
