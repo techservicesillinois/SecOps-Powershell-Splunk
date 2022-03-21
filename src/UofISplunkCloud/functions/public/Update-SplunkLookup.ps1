@@ -60,7 +60,7 @@ function Update-SplunkLookup {
             }
 
             #Update the lookup, which requires transformation of the CSV file
-            $CSVJson = Import-Csv $NewCSVPath | ConvertTo-Json
+            $CSVJson = Import-Csv $NewCSVPath -Encoding 'UTF8' | ConvertTo-Json
             #Escapes any escapes \ and escaped quotes \" in the json elements, then escapes any quotes in the json body
             #Solution from dmarling here: https://community.splunk.com/t5/Getting-Data-In/how-to-upload-csv-data-file-into-splunk-by-using-REST-API-Can/td-p/442884
             $EscapingEscapedEscapes = $CSVJson -replace '\\\\', '\\\\\\'
