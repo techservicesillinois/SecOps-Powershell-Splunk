@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
     Updates a Splunk lookup table with the provided CSV. This function requires loading the CSV into memory and should not be used with large files.
 .DESCRIPTION
