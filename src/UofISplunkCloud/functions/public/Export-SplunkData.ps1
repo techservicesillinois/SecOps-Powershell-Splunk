@@ -1,4 +1,4 @@
-<#
+﻿<#
 .Synopsis
     Returns data from Splunk based on search parameters
 .DESCRIPTION
@@ -13,7 +13,7 @@
     Format of the data to return. Default is CSV and CSVs will output as a file
     Valid values: (csv | json | json_cols | json_rows | xml)
 .PARAMETER ConsoleOutput
-    Specify to return the data of the given format to the console. No file will be created. 
+    Specify to return the data of the given format to the console. No file will be created.
 .PARAMETER App
     Specify the Splunk app to search if required
 .PARAMETER Timeout
@@ -44,7 +44,7 @@ function Export-SplunkData {
         [Int]$Timeout = 5,
         [String]$EarliestTime = '-30m',
         [String]$LatestTime
-        
+
     )
 
     process {
@@ -108,20 +108,20 @@ function Export-SplunkData {
             $Results
         }
         ElseIf($OutputMode -eq 'csv'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv" 
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv" 
+            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
         }
         ElseIf($OutputMode -like 'json*'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json" 
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json" 
+            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
         }
         ElseIf($OutputMode -eq 'xml'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml" 
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml" 
+            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
         }
         else{
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)" 
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)" 
+            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
         }
     }
     end {

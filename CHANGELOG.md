@@ -13,6 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.0.1] - 2022-03-21
+
+### Changed
+
+- MIT License replaced with U of I / NCSA License
+
+### Added
+
+- EOL and EOS dates to README
+- Whatif functionality / SupportShouldProcess to Update-SplunkLookup
+
+### Removed
+
+- Trailing whitespace
+
 ## [1.0.0] - 2022-03-17
 
 ### Added

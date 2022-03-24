@@ -15,7 +15,7 @@ This function requires loading the CSV into memory and should not be used with l
 
 ```
 Update-SplunkLookup [-Credential] <PSCredential> [-CloudDeploymentName] <String> [-LookupName] <String>
- [-NewCSVPath] <String> [[-App] <String>] [<CommonParameters>]
+ [-NewCSVPath] <String> [[-App] <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -26,7 +26,7 @@ This function requires loading the CSV into memory and should not be used with l
 
 ### EXAMPLE 1
 ```
-Update-SplunkLookup -Credential $Credential -CloudDeploymentName 'illinois' -LookupName 'test.csv' -NewCSVFilePath '.\test_2022-14-03.csv' -App 'illinois-urbana-security-techsvc-APP'
+Update-SplunkLookup -Credential $Credential -CloudDeploymentName 'illinois' -LookupName 'test.csv' -NewCSVPath '.\test_2022-14-03.csv' -App 'illinois-urbana-security-techsvc-APP'
 ```
 
 ## PARAMETERS
@@ -101,6 +101,37 @@ Aliases:
 
 Required: False
 Position: 5
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -WhatIf
+Shows what would happen if the cmdlet runs.
+The cmdlet is not run.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: wi
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Confirm
+Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: cf
+
+Required: False
+Position: Named
 Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
