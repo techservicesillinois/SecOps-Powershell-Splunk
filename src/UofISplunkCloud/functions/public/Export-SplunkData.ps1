@@ -19,12 +19,14 @@
 .PARAMETER Timeout
     Number of minutes to wait for search results before timing out. Default is 5
 .PARAMETER EarliestTime
-    Sets the earliest (inclusive), respectively, time bounds for the search. Can be a UTC time or a time relative to now ex: -5h for 5 hours ago
+    Sets the earliest (inclusive), respectively, time bounds for the search. Can be a UTC time or a time relative to now ex: -5h for 5 hours ago. 1 indicates all time.
     Default is 30m ago
 .PARAMETER LatestTime
     Sets the latest (exclusive), respectively, time bounds for the search. Can be a UTC time or a time relative to now ex: -30m for 30m ago. Default is now
 .EXAMPLE
-    Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=security-qualysvm_techsvc | stats count by sourcetype' -Credential $Credential -App 'illinois-urbana-security-techsvc-APP'
+    Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test | append [ | inputlookup test ]' -Credential $Credential -App 'illinois-urbana-security-techsvc-APP'
+    Note like in the above example, search commands that begin with | such as inputlookup and mstats must be fed a dummy index and an append to complete the search succesfully with the API.
+    https://github.com/splunk/splunk-tableau-wdc/issues/6#issuecomment-499229594 
 .EXAMPLE
     Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test test_event' -Credential $Credential -ConsoleOutput -EarliestTime '-15m'
 #>
@@ -82,14 +84,27 @@ function Export-SplunkData {
         $SearchMetaData = Invoke-RestMethod @IVRSplat
         $Status = $SearchMetaData.entry.content.dispatchState
         $Seconds = 0
-        While(($Status -ne 'DONE') -or ($Seconds -ge ($Timeout*60))){
+        #Wait for the search to parse and keep checking its status until it's no longer parsing or the timeout elapses
+        While((($Status -eq 'PARSING') -or ($Status -eq 'RUNNING')) -and ($Seconds -le ($Timeout*60))){
             Start-Sleep -Seconds 5
             $Seconds += 5
+            Write-Verbose -Message 'Search is still running...'
             $SearchMetaData = Invoke-RestMethod @IVRSplat
             $Status = $SearchMetaData.entry.content.dispatchState
         }
         If($Seconds -ge ($Timeout*60)){
-            Throw "Search timeout has elapsed. Try increasing the timeout. The status of your search at the time of this error was: $($Status)"
+            If($Status -eq 'RUNNING'){
+                Throw "Search timeout has elapsed while the search was still running. Try increasing the timeout."
+            }
+            Else{
+                Throw "Search timeout has elapsed. Try increasing the timeout. The status of your search at the time of this error was: $($Status)"
+            }
+        }
+        If($Status -eq 'FAILED'){
+            Throw "Search has FAILED. `n $($SearchMetaData.entry.Content.messages.text)"
+        }
+        ElseIf($Status -ne 'DONE'){
+            Throw "Search did not complete successfully. The status of your search is $($Status). `n $($SearchMetaData.entry.Content.messages.text)"
         }
 
         #Now that the search is 'DONE', use the SID for our search to get the results
@@ -104,7 +119,10 @@ function Export-SplunkData {
         $Results = Invoke-RestMethod @IVRSplat
 
         #Return results
-        If($ConsoleOutput){
+        If(!($Results)){
+            Write-Output -InputObject "No results"
+        }
+        ElseIf($ConsoleOutput){
             $Results
         }
         ElseIf($OutputMode -eq 'csv'){

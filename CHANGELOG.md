@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.0.2] - 2022-04-22
+
+### Added
+
+- Comments explaining API workaround for search commands that begin with '|'
+- More specific error output conditions
+- Output for no results
+
+### Changed
+
+- While condition changed to better track if search is still running
+
 ## [1.0.1] - 2022-03-21
 
 ### Changed
