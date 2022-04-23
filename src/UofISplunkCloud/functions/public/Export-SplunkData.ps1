@@ -28,7 +28,7 @@
 .EXAMPLE
     Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test | append [ | inputlookup test ]' -Credential $Credential -App 'illinois-urbana-security-techsvc-APP'
     Note like in the above example, search commands that begin with | such as inputlookup and mstats must be fed a dummy index and an append to complete the search succesfully with the API.
-    https://github.com/splunk/splunk-tableau-wdc/issues/6#issuecomment-499229594 
+    https://github.com/splunk/splunk-tableau-wdc/issues/6#issuecomment-499229594
 #>
 function Export-SplunkData {
     [CmdletBinding()]
@@ -84,7 +84,7 @@ function Export-SplunkData {
         $SearchMetaData = Invoke-RestMethod @IVRSplat
         $Status = $SearchMetaData.entry.content.dispatchState
         $Seconds = 0
-        #Wait for the search to parse and keep checking its status until it's no longer parsing or the timeout elapses
+        #Wait for the search to parse and keep checking its status until it's no longer running or the timeout elapses
         While((($Status -eq 'PARSING') -or ($Status -eq 'RUNNING')) -and ($Seconds -le ($Timeout*60))){
             Start-Sleep -Seconds 5
             $Seconds += 5
