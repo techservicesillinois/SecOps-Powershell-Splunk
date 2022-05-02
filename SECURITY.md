@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-There is only one version track for UofISplunkCloud so all patches will be applied to the latest version only.
+Patches for UofISplunkCloud will only be applied to the latest version.
 
 | Version | Supported          |
 | ------- | ------------------ |
@@ -10,7 +10,8 @@ There is only one version track for UofISplunkCloud so all patches will be appli
 
 ## Reporting a Bug or Vulnerability
 
-Critical vulnerabilities can be responsibly disclosed to [securitysupport@illinois.edu](mailto:securitysupport@illinois.edu). Bugs and low level vulneratbilities can be reported via repository issues.
+Vulnerabilities can be responsibly disclosed through the process documented at https://go.illinois.edu/vulnerability
+Bugs can be reported via repository issues.
 
 ## Support Lifecycle
 
