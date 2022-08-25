@@ -25,12 +25,14 @@ Returns data from Splunk based on search parameters
 
 ### EXAMPLE 1
 ```
-Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=security-qualysvm_techsvc | stats count by sourcetype' -Credential $Credential -App 'illinois-urbana-security-techsvc-APP'
+Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test test_event' -Credential $Credential -ConsoleOutput -EarliestTime '-15m'
 ```
 
 ### EXAMPLE 2
 ```
-Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test test_event' -Credential $Credential -ConsoleOutput -EarliestTime '-15m'
+Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test | append [ | inputlookup test ]' -Credential $Credential -App 'illinois-urbana-security-techsvc-APP'
+Note like in the above example, search commands that begin with | such as inputlookup and mstats must be fed a dummy index and an append to complete the search succesfully with the API.
+https://github.com/splunk/splunk-tableau-wdc/issues/6#issuecomment-499229594
 ```
 
 ## PARAMETERS
@@ -146,7 +148,8 @@ Accept wildcard characters: False
 
 ### -EarliestTime
 Sets the earliest (inclusive), respectively, time bounds for the search.
-Can be a UTC time or a time relative to now ex: -5h for 5 hours ago
+Can be a UTC time or a time relative to now ex: -5h for 5 hours ago.
+1 indicates all time.
 Default is 30m ago
 
 ```yaml
