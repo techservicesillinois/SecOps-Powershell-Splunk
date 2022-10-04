@@ -76,7 +76,14 @@ function Send-SplunkHECEvent {
                 'sourcetype' = $Sourcetype
                 'source' = $Source
                 'event' = $EventArray[$i]
-            } | ConvertTo-Json -Compress
+            } | ConvertTo-Json -Depth 5 -Compress
+
+            # ConvertTo-Json escapes unicode U+0022 quotes automatically
+            # https://www.ietf.org/rfc/rfc8259.txt
+            # Splunk HEC seems to interpret other unicode quotes as legitimate quotes
+            # Escape these quotes to prevent a HEC error of: text":"Invalid data format","code":6,"
+            $Body = $Body -replace "`u{201c}", "\`u{201c}" -replace "`u{201d}", "\`u{201d}" -replace "`u{201f}", "\`u{201f}"
+
             $BulkEvent += $Body
             $count++
 
