@@ -114,6 +114,7 @@ function Export-SplunkData {
             URI = "$($BaseURI)/search/jobs/$($SearchJob.sid)/results"
             Body =  @{
                 output_mode = $OutputMode
+                count = '0'
             }
         }
         $Results = Invoke-RestMethod @IVRSplat

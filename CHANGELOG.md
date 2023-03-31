@@ -13,11 +13,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.1.2] - 2023-03-31
+
+### Changed
+
+- Added "count" parameter and set to 0 so results are no longer limited to 100.
+
 ## [1.1.1] - 2022-09-06
 
 ### Changed
 
-- Provided a fix in Send-SplunkHECEvent.ps1 to address a case where Splunk was treating unicode quotation characters as U+0022.  PowerShell escapes U+0022 with ConvertTo-Json.  This fix also escapes the other unicode quotation characters to prevent an error from Splunk HEC.
+- Provided a fix in Send-SplunkHECEvent.ps1 to address a case where Splunk was treating unicode quotation characters as U+0022. PowerShell escapes U+0022 with ConvertTo-Json. This fix also escapes the other unicode quotation characters to prevent an error from Splunk HEC.
 - Added a parameter to the ConvertTo-Json command to allow processing of deeper JSON objects.
 
 ## [1.1.0] - 2022-08-23
