@@ -111,7 +111,7 @@ function Send-SplunkHECEvent {
                         Invoke-RestMethod @RestSplat -SkipCertificateCheck | Out-Null
                     }
                     else {
-                        Invoke-RestMethod @RestSplat | Out-Null 
+                        Invoke-RestMethod @RestSplat | Out-Null
                     }
                 }
 
