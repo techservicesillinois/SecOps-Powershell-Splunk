@@ -18,6 +18,8 @@ function Send-SplunkHECEvent {
         Splunk host value that will be set for the event.
     .PARAMETER RequestSize
         Number of PowerShell objects (multiple Splunk events) to include in a single HTTP Request to Splunk HEC.
+    .PARAMETER SkipCertificateCheck
+        Switch to skip the TLS certificate checking.
     .EXAMPLE
         Send-SplunkHECEvent -HecToken $Credential -HecUri 'https://splunk.example.com:8088/services/collector' -EventData $ObjectArray -Sourcetype 'vendor:product:type:technology/format' -Source 'script.ps1'
     .EXAMPLE
@@ -53,7 +55,9 @@ function Send-SplunkHECEvent {
 
         [string]$HecUri = 'https://localhost:8088/services/collector',
 
-        [int]$RequestSize = 10
+        [int]$RequestSize = 10,
+
+        [switch]$SkipCertificateCheck
     )
 
     Begin {
@@ -103,7 +107,12 @@ function Send-SplunkHECEvent {
                 # Send event(s) to Splunk HEC endpoint
                 if ($PSCmdlet.ShouldProcess($RestSplat['Body'], 'Sending')) {
                     Write-Verbose "HTTP Request contains $($count) event(s)"
-                    Invoke-RestMethod @RestSplat | Out-Null
+                    if ($SkipCertificateCheck) {
+                        Invoke-RestMethod @RestSplat -SkipCertificateCheck | Out-Null
+                    }
+                    else {
+                        Invoke-RestMethod @RestSplat | Out-Null
+                    }
                 }
 
                 # Reset to create a new multi-event Body

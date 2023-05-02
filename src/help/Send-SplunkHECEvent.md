@@ -14,8 +14,8 @@ Sends one or more PowerShell objects to a Splunk HTTP Event Collector (HEC) endp
 
 ```
 Send-SplunkHECEvent [-EventData] <PSObject> [-HecToken] <PSCredential> [-Source] <String>
- [-Sourcetype] <String> [[-SplunkHost] <String>] [[-HecUri] <String>] [[-RequestSize] <Int32>] [-WhatIf]
- [-Confirm] [<CommonParameters>]
+ [-Sourcetype] <String> [[-SplunkHost] <String>] [[-HecUri] <String>] [[-RequestSize] <Int32>]
+ [-SkipCertificateCheck] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -150,6 +150,21 @@ Aliases:
 Required: False
 Position: 7
 Default value: 10
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipCertificateCheck
+Switch to skip the TLS certificate checking.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
