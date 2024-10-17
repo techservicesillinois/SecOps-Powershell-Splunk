@@ -45,8 +45,9 @@ function Export-SplunkData {
         [String]$App,
         [Int]$Timeout = 5,
         [String]$EarliestTime = '-30m',
-        [String]$LatestTime
-
+        [String]$LatestTime,
+        [int]$Offset,
+        [int]$Pages
     )
 
     process {
@@ -108,17 +109,37 @@ function Export-SplunkData {
         }
 
         #Now that the search is 'DONE', use the SID for our search to get the results
-        $IVRSplat = @{
-            Credential = $Credential
-            Method = 'GET'
-            URI = "$($BaseURI)/search/jobs/$($SearchJob.sid)/results"
-            Body =  @{
-                output_mode = $OutputMode
-                count = '0'
-            }
-        }
-        $Results = Invoke-RestMethod @IVRSplat
+        if($Offset){
+            $Index=0
+            $NewOffset=0
 
+            While($Index -lt $Pages){
+                $IVRSplat = @{
+                    Credential = $Credential
+                    Method = 'GET'
+                    URI = "$($BaseURI)/search/jobs/$($SearchJob.sid)/results?Offset=$($NewOffset)"
+                    Body =  @{
+                        output_mode = $OutputMode
+                        count = '0'
+                    }
+                }
+                $Results = Invoke-RestMethod @IVRSplat
+                $Index++
+            }
+        }   
+        Else{
+            $IVRSplat = @{
+                Credential = $Credential
+                Method = 'GET'
+                URI = "$($BaseURI)/search/jobs/$($SearchJob.sid)/results"
+                Body =  @{
+                    output_mode = $OutputMode
+                    count = '0'
+                }
+            }
+            $Results = Invoke-RestMethod @IVRSplat
+        }   
+    
         #Return results
         If(!($Results)){
             Write-Output -InputObject "No results"
