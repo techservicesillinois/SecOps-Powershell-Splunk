@@ -23,6 +23,10 @@
     Default is 30m ago
 .PARAMETER LatestTime
     Sets the latest (exclusive), respectively, time bounds for the search. Can be a UTC time or a time relative to now ex: -30m for 30m ago. Default is now
+.PARAMETER Offset
+    Specifies the number of results to return for each Page offsetting by this amount for each Page. Maximum value is 50,000
+.PARAMETER Pages
+    Sets the number of Pages to return based on the Offset. For Example: Pages = 10 and Offset = 50000 Would give you 500000 results.
 .EXAMPLE
     Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test test_event' -Credential $Credential -ConsoleOutput -EarliestTime '-15m'
 .EXAMPLE
@@ -46,11 +50,17 @@ function Export-SplunkData {
         [Int]$Timeout = 5,
         [String]$EarliestTime = '-30m',
         [String]$LatestTime,
+        [ValidateRange(1,50000)]
         [int]$Offset,
+        [ValidateRange(1,5000)]
         [int]$Pages
     )
 
     process {
+        #Validate that Pages and Offset are set together
+        If(($Pages -and -not $Offset) -or ($Offset -and -not $Pages)){
+            Write-Error "Pages and Offset must be specified together"
+        }
         #Set the Base URI depending on whether or not an app was specified
         If($App){
             $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/$($Credential.UserName)/$($App)"
@@ -110,10 +120,10 @@ function Export-SplunkData {
 
         #Now that the search is 'DONE', use the SID for our search to get the results
         if($Offset){
-            $Index=0
-            $NewOffset=0
-
+            [int]$Index=0
+            [int]$NewOffset=0
             While($Index -lt $Pages){
+                $NewOffset += $Offset
                 $IVRSplat = @{
                     Credential = $Credential
                     Method = 'GET'
