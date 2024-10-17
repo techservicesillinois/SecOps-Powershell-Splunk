@@ -135,6 +135,30 @@ function Export-SplunkData {
                 }
                 $Results = Invoke-RestMethod @IVRSplat
                 $Index++
+
+                #Return results
+                If(!($Results)){
+                    Write-Output -InputObject "No results"
+                }
+                ElseIf($ConsoleOutput){
+                    $Results
+                }
+                ElseIf($OutputMode -eq 'csv'){
+                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+                }
+                ElseIf($OutputMode -like 'json*'){
+                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                }
+                ElseIf($OutputMode -eq 'xml'){
+                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+                }
+                else{
+                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+                }
             }
         }   
         Else{
@@ -148,30 +172,30 @@ function Export-SplunkData {
                 }
             }
             $Results = Invoke-RestMethod @IVRSplat
-        }   
-    
-        #Return results
-        If(!($Results)){
-            Write-Output -InputObject "No results"
-        }
-        ElseIf($ConsoleOutput){
-            $Results
-        }
-        ElseIf($OutputMode -eq 'csv'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
-        }
-        ElseIf($OutputMode -like 'json*'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
-        }
-        ElseIf($OutputMode -eq 'xml'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
-        }
-        else{
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+
+            #Return results
+            If(!($Results)){
+                Write-Output -InputObject "No results"
+            }
+            ElseIf($ConsoleOutput){
+                $Results
+            }
+            ElseIf($OutputMode -eq 'csv'){
+                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+            }
+            ElseIf($OutputMode -like 'json*'){
+                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+            }
+            ElseIf($OutputMode -eq 'xml'){
+                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+            }
+            else{
+                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+            }
         }
     }
     end {
