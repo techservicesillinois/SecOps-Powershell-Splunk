@@ -124,6 +124,7 @@ function Export-SplunkData {
         if($Offset){
             [int]$Index=0
             [int]$NewOffset=0
+            $Pages = [math]::Ceiling($MaxResults/$Offset)
             While($Index -lt $Pages){
                 $NewOffset = $Index * $Offset
                 $IVRSplat = @{
@@ -135,8 +136,7 @@ function Export-SplunkData {
                         count = '0'
                     }
                 }
-                $IVRSplat.URI
-                #$Results = Invoke-RestMethod @IVRSplat
+                $Results = Invoke-RestMethod @IVRSplat
                 $Index++
 
                 #Return results
