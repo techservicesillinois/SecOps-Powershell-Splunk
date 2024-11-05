@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.1.4] - 2024-10-17
+
+### Changed
+
+- Export-SplunkData.ps1: Added new parameters "Offset" and "Pages" to add the functionality of offsetting results due to the 50000 event limit within the Splunk Cloud API.
+
 ## [1.1.3] - 2023-05-01
 
 ### Changed
