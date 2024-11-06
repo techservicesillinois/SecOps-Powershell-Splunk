@@ -23,6 +23,10 @@
     Default is 30m ago
 .PARAMETER LatestTime
     Sets the latest (exclusive), respectively, time bounds for the search. Can be a UTC time or a time relative to now ex: -30m for 30m ago. Default is now
+.PARAMETER Offset
+    Specifies the number of results to return for each Page offsetting by this amount for each Page. Maximum value is 50,000
+.PARAMETER MaxResults
+    Use this parameter if the number of results you want returned is greater than 50000. Sets the number of maximum results to return. You must specify an Offset with this parameter.
 .EXAMPLE
     Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test test_event' -Credential $Credential -ConsoleOutput -EarliestTime '-15m'
 .EXAMPLE
@@ -45,11 +49,17 @@ function Export-SplunkData {
         [String]$App,
         [Int]$Timeout = 5,
         [String]$EarliestTime = '-30m',
-        [String]$LatestTime
-
+        [String]$LatestTime,
+        [ValidateRange(1,50000)]
+        [int]$Offset,
+        [int]$MaxResults
     )
 
     process {
+        #Validate that Pages and Offset are set together
+        If($MaxResults -and -not $Offset){
+            Write-Error "MaxResults must be specified with Offset"
+        }
         #Set the Base URI depending on whether or not an app was specified
         If($App){
             $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/$($Credential.UserName)/$($App)"
@@ -69,6 +79,9 @@ function Export-SplunkData {
                 earliest_time = $EarliestTime
                 latest_time = $LatestTime
             }
+        }
+        If($MaxResults){
+            $IVRSplat.Body["max_count"] = $MaxResults
         }
         $SearchJob = Invoke-RestMethod @IVRSplat
 
@@ -108,39 +121,84 @@ function Export-SplunkData {
         }
 
         #Now that the search is 'DONE', use the SID for our search to get the results
-        $IVRSplat = @{
-            Credential = $Credential
-            Method = 'GET'
-            URI = "$($BaseURI)/search/jobs/$($SearchJob.sid)/results"
-            Body =  @{
-                output_mode = $OutputMode
-                count = '0'
+        if($Offset){
+            [int]$Index=0
+            [int]$NewOffset=0
+            $Pages = [math]::Ceiling($MaxResults/$Offset)
+            While($Index -lt $Pages){
+                $NewOffset = $Index * $Offset
+                $IVRSplat = @{
+                    Credential = $Credential
+                    Method = 'GET'
+                    URI = "$($BaseURI)/search/jobs/$($SearchJob.sid)/results?offset=$($NewOffset)"
+                    Body =  @{
+                        output_mode = $OutputMode
+                        count = '0'
+                    }
+                }
+                $Results = Invoke-RestMethod @IVRSplat
+                $Index++
+
+                #Return results
+                If(!($Results)){
+                    Write-Output -InputObject "No results"
+                }
+                ElseIf($ConsoleOutput){
+                    $Results
+                }
+                ElseIf($OutputMode -eq 'csv'){
+                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+                }
+                ElseIf($OutputMode -like 'json*'){
+                    $Results | ConvertTo-Json -Depth 10 | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                }
+                ElseIf($OutputMode -eq 'xml'){
+                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+                }
+                else{
+                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+                }
             }
         }
-        $Results = Invoke-RestMethod @IVRSplat
+        Else{
+            $IVRSplat = @{
+                Credential = $Credential
+                Method = 'GET'
+                URI = "$($BaseURI)/search/jobs/$($SearchJob.sid)/results"
+                Body =  @{
+                    output_mode = $OutputMode
+                    count = '0'
+                }
+            }
+            $Results = Invoke-RestMethod @IVRSplat
 
-        #Return results
-        If(!($Results)){
-            Write-Output -InputObject "No results"
-        }
-        ElseIf($ConsoleOutput){
-            $Results
-        }
-        ElseIf($OutputMode -eq 'csv'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
-        }
-        ElseIf($OutputMode -like 'json*'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
-        }
-        ElseIf($OutputMode -eq 'xml'){
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
-        }
-        else{
-            $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
-            Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+            #Return results
+            If(!($Results)){
+                Write-Output -InputObject "No results"
+            }
+            ElseIf($ConsoleOutput){
+                $Results
+            }
+            ElseIf($OutputMode -eq 'csv'){
+                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+            }
+            ElseIf($OutputMode -like 'json*'){
+                $Results | ConverTo-Json -Depth 10 | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+            }
+            ElseIf($OutputMode -eq 'xml'){
+                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+            }
+            else{
+                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+            }
         }
     }
     end {
