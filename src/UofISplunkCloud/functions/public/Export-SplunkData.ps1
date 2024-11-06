@@ -163,7 +163,7 @@ function Export-SplunkData {
                     Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
                 }
             }
-        }   
+        }
         Else{
             $IVRSplat = @{
                 Credential = $Credential
@@ -188,7 +188,7 @@ function Export-SplunkData {
                 Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
             }
             ElseIf($OutputMode -like 'json*'){
-                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                $Results | ConverTo-Json -Depth 10 | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
                 Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
             }
             ElseIf($OutputMode -eq 'xml'){
