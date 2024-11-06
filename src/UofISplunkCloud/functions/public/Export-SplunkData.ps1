@@ -151,7 +151,7 @@ function Export-SplunkData {
                     Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
                 }
                 ElseIf($OutputMode -like 'json*'){
-                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                    $Results | ConvertTo-Json -Depth 10 | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
                     Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
                 }
                 ElseIf($OutputMode -eq 'xml'){
