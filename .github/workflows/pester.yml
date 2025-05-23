@@ -16,7 +16,7 @@ jobs:
         os: [macos-latest, windows-latest]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: Install-Module -Name 'Pester' -Force -SkipPublisherCheck
       shell: pwsh
