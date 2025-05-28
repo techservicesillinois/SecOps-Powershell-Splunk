@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.1.5] - 2024-05-23
+
+### Changed
+
+- Removed a previous v1.1.1 fix in Send-SplunkHECEvent.ps1 to address a case where Splunk was treating unicode quotation characters as U+0022. PowerShell escapes U+0022 with ConvertTo-Json. This change removes the escapes of the unicode quote characters since this now causes an error.  Splunk must have resolved this bug and therefore the pervious fix was preventing some events from being accepted by the HEC endpoint.
+- Update GitHub actions for `checkout` and `pr-reviews-reminder-action` workflows.
+- README.md - update the end of support to November 2026 to align with PowerShell 7.4
+
 ## [1.1.4] - 2024-11-06
 
 ### Changed
