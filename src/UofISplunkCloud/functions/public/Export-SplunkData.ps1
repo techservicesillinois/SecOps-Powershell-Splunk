@@ -176,6 +176,22 @@ function Export-SplunkData {
             }
             $Results = Invoke-RestMethod @IVRSplat
 
+            $Filename = "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+
+            # Files are sometimes not generated correctly due to small transient issues in Azure Automation fabric infrastructure
+            function Write-WithRetry {
+                param(
+                    [scriptblock]$WriteAction,
+                    [string]$FilePath
+                )
+                for ($i = 1; $i -le 3; $i++) {
+                    & $WriteAction
+                    if (Test-Path -Path $FilePath) { return }
+                    Start-Sleep -Seconds 2
+                }
+                throw "Failed to write $($FilePath) after 3 attempts."
+            }
+
             #Return results
             If(!($Results)){
                 Write-Output -InputObject "No results"
@@ -184,20 +200,28 @@ function Export-SplunkData {
                 $Results
             }
             ElseIf($OutputMode -eq 'csv'){
-                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
-                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
+                Write-WithRetry -FilePath ".\$($Filename).csv" -WriteAction {
+                    $Results | Out-File -Path ".\$($Filename).csv"
+                }
+                Write-Output -InputObject "$($Filename).csv"
             }
             ElseIf($OutputMode -like 'json*'){
-                $Results | ConverTo-Json -Depth 10 | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
-                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
+                Write-WithRetry -FilePath ".\$($Filename).json" -WriteAction {
+                    $Results | ConvertTo-Json -Depth 10 | Out-File -Path ".\$($Filename).json"
+                }
+                Write-Output -InputObject "$($Filename).json"
             }
             ElseIf($OutputMode -eq 'xml'){
-                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
-                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
+                Write-WithRetry -FilePath ".\$($Filename).xml" -WriteAction {
+                    $Results | Out-File -Path ".\$($Filename).xml"
+                }
+                Write-Output -InputObject "$($Filename).xml"
             }
             else{
-                $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
-                Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
+                Write-WithRetry -FilePath ".\$($Filename)" -WriteAction {
+                    $Results | Out-File -Path ".\$($Filename)"
+                }
+                Write-Output -InputObject "$($Filename)"
             }
         }
     }

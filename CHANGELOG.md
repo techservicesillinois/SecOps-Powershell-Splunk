@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.1.6] - 2026-03-04
+
+### Changed
+
+- Export-SplunkData: File generation in transient execution environments (e.g. Azure Automation runbooks) is susceptible to intermittent I/O failures. Added retry logic to handle cases where output files are not written due to short-lived environment instability.
+
 ## [1.1.5] - 2024-05-23
 
 ### Changed
