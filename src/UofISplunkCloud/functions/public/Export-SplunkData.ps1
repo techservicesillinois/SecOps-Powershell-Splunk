@@ -27,6 +27,8 @@
     Specifies the number of results to return for each Page offsetting by this amount for each Page. Maximum value is 50,000
 .PARAMETER MaxResults
     Use this parameter if the number of results you want returned is greater than 50000. Sets the number of maximum results to return. You must specify an Offset with this parameter.
+.PARAMETER UsePrivateContext
+    Uses the authenticated user's namespace instead of the shared app namespace (nobody). Required for user-private knowledge objects such as private macros, lookups, or saved searches.
 .EXAMPLE
     Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test test_event' -Credential $Credential -ConsoleOutput -EarliestTime '-15m'
 .EXAMPLE
@@ -52,7 +54,8 @@ function Export-SplunkData {
         [String]$LatestTime,
         [ValidateRange(1,50000)]
         [int]$Offset,
-        [int]$MaxResults
+        [int]$MaxResults,
+        [switch]$UsePrivateContext
     )
 
     process {
@@ -62,7 +65,13 @@ function Export-SplunkData {
         }
         #Set the Base URI depending on whether or not an app was specified
         If($App){
-            $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/nobody/$($App)"
+            If($UsePrivateContext){
+                $User = $Credential.UserName
+            }
+            Else{
+                $User = 'nobody'
+            }
+            $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/$($User)/$($App)"
         }
         Else{
             $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/services"
