@@ -33,7 +33,7 @@ function Update-SplunkLookup {
     process {
         #Set the Base URI depending on whether or not an app was specified
         If($App){
-            $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/$($Credential.UserName)/$($App)"
+            $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/nobody/$($App)"
         }
         Else{
             $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/services"
