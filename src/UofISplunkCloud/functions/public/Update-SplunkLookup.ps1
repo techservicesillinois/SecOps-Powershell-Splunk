@@ -13,6 +13,8 @@
     Path to the CSV that will replace the lookup at the lookup name provided ie '.\test_2022-14-03.csv'
 .PARAMETER App
     Specify the Splunk app to use if required ie 'illinois-urbana-security-techsvc-APP'
+.PARAMETER UsePrivateContext
+    Uses the authenticated user's namespace instead of the shared app namespace (nobody). Required for user-private knowledge objects such as private macros, lookups, or saved searches.
 .EXAMPLE
     Update-SplunkLookup -Credential $Credential -CloudDeploymentName 'illinois' -LookupName 'test.csv' -NewCSVPath '.\test_2022-14-03.csv' -App 'illinois-urbana-security-techsvc-APP'
 #>
@@ -27,13 +29,20 @@ function Update-SplunkLookup {
         [String]$LookupName,
         [Parameter(Mandatory=$true)]
         [String]$NewCSVPath,
-        [String]$App
+        [String]$App,
+        [switch]$UsePrivateContext
     )
 
     process {
         #Set the Base URI depending on whether or not an app was specified
         If($App){
-            $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/$($Credential.UserName)/$($App)"
+            If($UsePrivateContext){
+                $User = $Credential.UserName
+            }
+            Else{
+                $User = 'nobody'
+            }
+            $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/servicesNS/$($User)/$($App)"
         }
         Else{
             $BaseURI = "https://$($CloudDeploymentName).splunkcloud.com:8089/services"

@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.1.7] - 2026-05-28
+
+### Changed
+
+- Export-SplunkData & Update-SplunkLookup:
+  - Updated Splunk REST search job creation to use the shared app namespace (servicesNS/nobody/<app>) instead of the authenticated user namespace. This avoids severe latency caused by user-specific namespace resolution while preserving app-context search behavior.
+
 ## [1.1.6] - 2026-03-04
 
 ### Changed
