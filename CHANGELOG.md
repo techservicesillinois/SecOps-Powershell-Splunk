@@ -13,6 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.1.8] - 2026-06-24
+
+### Changed
+
+- Send-SplunkHECEvent.ps1
+  - fixed path capitalization that was preventing the module from loading function in Linux
+- Update GitHub actions for `checkout`
+
 ## [1.1.7] - 2026-05-28
 
 ### Changed
