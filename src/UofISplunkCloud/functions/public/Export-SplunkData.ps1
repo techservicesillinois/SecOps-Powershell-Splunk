@@ -190,7 +190,7 @@ function Export-SplunkData {
             throw "Failed to write $($FilePath) after 3 attempts."
         }
 
-        #Return results
+        # Return results
         If(!($Results)){
             Write-Output -InputObject "No results"
         }
