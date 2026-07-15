@@ -127,7 +127,7 @@ function Export-SplunkData {
             Throw "Search did not complete successfully. The status of your search is $($Status). `n $($SearchMetaData.entry.Content.messages.text)"
         }
 
-        #Now that the search is 'DONE', use the SID for our search to get the results
+        # Now that the search is 'DONE', use the SID for our search to get the results
         if($Offset){
             [int]$Index=0
             [int]$NewOffset=0
@@ -147,7 +147,7 @@ function Export-SplunkData {
                 $PartialResults = Invoke-RestMethod @IVRSplat
                 $Index++
 
-                #Return results
+                # Return results
                 If($PartialResults){
                     $Results += $PartialResults
                 }
@@ -176,7 +176,7 @@ function Export-SplunkData {
 
             $Filename = "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
         }
-            # Files are sometimes not generated correctly due to small transient issues in Azure Automation fabric infrastructure
+            #Files are sometimes not generated correctly due to small transient issues in Azure Automation fabric infrastructure
         function Write-WithRetry {
             param(
                 [scriptblock]$WriteAction,
@@ -190,7 +190,7 @@ function Export-SplunkData {
             throw "Failed to write $($FilePath) after 3 attempts."
         }
 
-        #Return results
+        # Return results
         If(!($Results)){
             Write-Output -InputObject "No results"
         }
