@@ -8,7 +8,7 @@
 .PARAMETER CloudDeploymentName
     Name of your Splunk cloud deployment name ie 'illinois' for illinois.splunkcloud.com
 .PARAMETER Search
-    Splunk search query for the data you would like returned. This wrapper will append "search" to the beginning of your query if it does not start with a pipe (|).
+    Splunk search query for the data you would like returned. This wrapper will append "search" to the beginning of your query if it does not start with a pipe (|) or 'search'.
 .PARAMETER OutputMode
     Format of the data to return. Default is CSV and CSVs will output as a file
     Valid values: (csv | json | json_cols | json_rows | xml)
@@ -81,7 +81,7 @@ function Export-SplunkData {
             Method = 'POST'
             URI = "$($BaseURI)/search/jobs"
             Body =  @{
-                search = if ($Search.TrimStart().StartsWith('|')) { $Search } else { "search $($Search)" }
+                search = if ($Search.TrimStart().StartsWith('|') -or $Search.TrimStart().StartsWith('search')) { $Search } else { "search $($Search)" }
                 output_mode = 'json'
                 earliest_time = $EarliestTime
                 latest_time = $LatestTime
