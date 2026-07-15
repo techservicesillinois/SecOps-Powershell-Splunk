@@ -176,7 +176,7 @@ function Export-SplunkData {
 
             $Filename = "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
         }
-            #Files are sometimes not generated correctly due to small transient issues in Azure Automation fabric infrastructure
+            # Files are sometimes not generated correctly due to small transient issues in Azure Automation fabric infrastructure
         function Write-WithRetry {
             param(
                 [scriptblock]$WriteAction,
