@@ -32,9 +32,7 @@
 .EXAMPLE
     Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test test_event' -Credential $Credential -ConsoleOutput -EarliestTime '-15m'
 .EXAMPLE
-    Export-SplunkData -CloudDeploymentName 'illinois' -Search 'index=test | append [ | inputlookup test ]' -Credential $Credential -App 'illinois-urbana-security-techsvc-APP'
-    Note like in the above example, search commands that begin with | such as inputlookup and mstats must be fed a dummy index and an append to complete the search succesfully with the API.
-    https://github.com/splunk/splunk-tableau-wdc/issues/6#issuecomment-499229594
+    Export-SplunkData -CloudDeploymentName 'illinois' -Search '| inputlookup test' -Credential $Credential -App 'security-app' -MaxResults 1000000 -Offset 50000
 #>
 function Export-SplunkData {
     [CmdletBinding()]
@@ -83,7 +81,7 @@ function Export-SplunkData {
             Method = 'POST'
             URI = "$($BaseURI)/search/jobs"
             Body =  @{
-                search = "search $($Search)"
+                search = if ($Search.TrimStart().StartsWith('|')) { $Search } else { "search $($Search)" }
                 output_mode = 'json'
                 earliest_time = $EarliestTime
                 latest_time = $LatestTime
@@ -133,6 +131,7 @@ function Export-SplunkData {
         if($Offset){
             [int]$Index=0
             [int]$NewOffset=0
+            $Results = @()
             $Pages = [math]::Ceiling($MaxResults/$Offset)
             While($Index -lt $Pages){
                 $NewOffset = $Index * $Offset
@@ -145,32 +144,22 @@ function Export-SplunkData {
                         count = '0'
                     }
                 }
-                $Results = Invoke-RestMethod @IVRSplat
+                $PartialResults = Invoke-RestMethod @IVRSplat
                 $Index++
 
                 #Return results
-                If(!($Results)){
-                    Write-Output -InputObject "No results"
+                If($PartialResults){
+                    $Results += $PartialResults
                 }
-                ElseIf($ConsoleOutput){
-                    $Results
+                Else{
+                    Continue
                 }
-                ElseIf($OutputMode -eq 'csv'){
-                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
-                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).csv"
-                }
-                ElseIf($OutputMode -like 'json*'){
-                    $Results | ConvertTo-Json -Depth 10 | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
-                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).json"
-                }
-                ElseIf($OutputMode -eq 'xml'){
-                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
-                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss).xml"
-                }
-                else{
-                    $Results | Out-File -Path ".\SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
-                    Write-Output -InputObject "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
-                }
+            }
+            If(!($Results)){
+                Write-Output -InputObject "No results"
+            }
+            Else{
+                $Filename = "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
             }
         }
         Else{
@@ -186,53 +175,53 @@ function Export-SplunkData {
             $Results = Invoke-RestMethod @IVRSplat
 
             $Filename = "SearchResults_$(Get-Date -Format yyyyMMdd-HHmmss)"
-
-            # Files are sometimes not generated correctly due to small transient issues in Azure Automation fabric infrastructure
-            function Write-WithRetry {
-                param(
-                    [scriptblock]$WriteAction,
-                    [string]$FilePath
-                )
-                for ($i = 1; $i -le 3; $i++) {
-                    & $WriteAction
-                    if (Test-Path -Path $FilePath) { return }
-                    Start-Sleep -Seconds 2
-                }
-                throw "Failed to write $($FilePath) after 3 attempts."
-            }
-
-            #Return results
-            If(!($Results)){
-                Write-Output -InputObject "No results"
-            }
-            ElseIf($ConsoleOutput){
-                $Results
-            }
-            ElseIf($OutputMode -eq 'csv'){
-                Write-WithRetry -FilePath ".\$($Filename).csv" -WriteAction {
-                    $Results | Out-File -Path ".\$($Filename).csv"
-                }
-                Write-Output -InputObject "$($Filename).csv"
-            }
-            ElseIf($OutputMode -like 'json*'){
-                Write-WithRetry -FilePath ".\$($Filename).json" -WriteAction {
-                    $Results | ConvertTo-Json -Depth 10 | Out-File -Path ".\$($Filename).json"
-                }
-                Write-Output -InputObject "$($Filename).json"
-            }
-            ElseIf($OutputMode -eq 'xml'){
-                Write-WithRetry -FilePath ".\$($Filename).xml" -WriteAction {
-                    $Results | Out-File -Path ".\$($Filename).xml"
-                }
-                Write-Output -InputObject "$($Filename).xml"
-            }
-            else{
-                Write-WithRetry -FilePath ".\$($Filename)" -WriteAction {
-                    $Results | Out-File -Path ".\$($Filename)"
-                }
-                Write-Output -InputObject "$($Filename)"
-            }
         }
+            # Files are sometimes not generated correctly due to small transient issues in Azure Automation fabric infrastructure
+        function Write-WithRetry {
+            param(
+                [scriptblock]$WriteAction,
+                [string]$FilePath
+            )
+            for ($i = 1; $i -le 3; $i++) {
+                & $WriteAction
+                if (Test-Path -Path $FilePath) { return }
+                Start-Sleep -Seconds 2
+            }
+            throw "Failed to write $($FilePath) after 3 attempts."
+        }
+
+        #Return results
+        If(!($Results)){
+            Write-Output -InputObject "No results"
+        }
+        ElseIf($ConsoleOutput){
+            $Results
+        }
+        ElseIf($OutputMode -eq 'csv'){
+            Write-WithRetry -FilePath ".\$($Filename).csv" -WriteAction {
+                $Results | Out-File -Path ".\$($Filename).csv"
+            }
+            Write-Output -InputObject "$($Filename).csv"
+        }
+        ElseIf($OutputMode -like 'json*'){
+            Write-WithRetry -FilePath ".\$($Filename).json" -WriteAction {
+                $Results | ConvertTo-Json -Depth 10 | Out-File -Path ".\$($Filename).json"
+            }
+            Write-Output -InputObject "$($Filename).json"
+        }
+        ElseIf($OutputMode -eq 'xml'){
+            Write-WithRetry -FilePath ".\$($Filename).xml" -WriteAction {
+                $Results | Out-File -Path ".\$($Filename).xml"
+            }
+            Write-Output -InputObject "$($Filename).xml"
+        }
+        else{
+            Write-WithRetry -FilePath ".\$($Filename)" -WriteAction {
+                $Results | Out-File -Path ".\$($Filename)"
+            }
+            Write-Output -InputObject "$($Filename)"
+        }
+
     }
     end {
     }
