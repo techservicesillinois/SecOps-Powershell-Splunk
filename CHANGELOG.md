@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [1.1.9] - 2026-07-15
+
+### Changed
+
+- Export-SplunkData
+  - Fix file export issue that generates multiple files when paging instead of coalescing results
+  - Conditionally add "search" to beginning of search to allow for searches that instead begin with pipes ie '| inputlookup lookup'
+  - Update example to no longer include workaround for searches that begin with pipes
+
 ## [1.1.8] - 2026-06-24
 
 ### Changed
